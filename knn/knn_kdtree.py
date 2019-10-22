@@ -20,21 +20,25 @@ class KdTree:
         self.KdTree = None
         self.n = 0
         self.nearest = None
-        self.create(dataSet, label)
+        label = np.reshape(label, (len(label), 1))
+        # the last column of combined data set is label
+        combDataSet = np.concatenate((dataSet, label), axis=1)
+        self.create(combDataSet)
 
     # 建立kdtree
-    def create(self, dataSet, label, depth=0):
-        if len(dataSet) > 0:
-            m, n = np.shape(dataSet)
+    def create(self, data, depth=0):
+        if len(data) > 0:
+            m, n = np.shape(data)
+            n -= 1
             self.n = n
             axis = depth % self.n
             mid = int(m / 2)
-            dataSetcopy = sorted(dataSet, key=lambda x: x[axis])
-            node = Node(dataSetcopy[mid], label[mid], depth)
+            dataSorted = sorted(data, key=lambda x: x[axis])
+            node = Node(dataSorted[mid][:-1], dataSorted[mid][-1], depth)
             if depth == 0:
                 self.KdTree = node
-            node.lchild = self.create(dataSetcopy[:mid], label, depth+1)
-            node.rchild = self.create(dataSetcopy[mid+1:], label, depth+1)
+            node.lchild = self.create(dataSorted[:mid], depth+1)
+            node.rchild = self.create(dataSorted[mid+1:], depth+1)
             return node
         return None
 
